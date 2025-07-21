@@ -1,9 +1,15 @@
 // app/layout.tsx
-import '../styles/globals.css'; // This path says "go up one directory (..) then into 'styles' and find 'globals.css'"
+import './globals.css'; // Corrected import path
+
+// Optional: Import Google Fonts if you plan to use 'Montserrat'
+// import { Montserrat } from 'next/font/google';
+
+// Optional: Initialize Montserrat font
+// const montserrat = Montserrat({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Endevo MVP', // You can customize your site title here
-  description: 'An MVP for Endevo project', // And description
+  title: 'Endevo MVP',
+  description: 'An MVP for Endevo project\'s development', // Corrected HTML entity
 };
 
 export default function RootLayout({
@@ -13,6 +19,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      {/* Optional: Apply font class if using next/font */}
+      {/* <html lang="en" className={montserrat.className}> */}
       <body>{children}</body>
     </html>
   );

@@ -1,0 +1,275 @@
+/* app/globals.css */
+
+:root {
+  --neural-purple: #6B46C1;
+  --quantum-blue: #0EA5E9;
+  --open-seas: #58BBB6;
+  --setting-sun: #FF5D00;
+  --guiding-light: #FFFFFF;
+  --deep-space: #08123A;
+}
+
+/* Basic styles for the layout */
+html, body {
+  padding: 0;
+  margin: 0;
+  font-family: 'Montserrat', sans-serif; /* Ensure you've imported this font or chosen a fallback */
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  background-color: var(--deep-space);
+  color: var(--guiding-light);
+  scroll-behavior: smooth;
+}
+
+/* Main Container - Adjusted to fix layout issues */
+.main-container {
+  position: relative; /* Essential for z-index and positioning children */
+  z-index: 1; /* Ensures content is above potential background elements */
+  /* padding-top will be added here once we decide on the exact hero section height */
+}
+
+
+/* Navbar styles */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 20px 40px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 30px;
+  z-index: 999;
+  background: linear-gradient(to bottom, rgba(8, 18, 58, 0.8), rgba(8, 18, 58, 0));
+  box-sizing: border-box;
+}
+
+.navbar a {
+  color: var(--guiding-light);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.navbar a:hover {
+  color: var(--open-seas);
+  transform: translateY(-3px);
+}
+
+/* New style for the toggle Jesse button */
+.nav-toggle-jesse {
+  background: none;
+  border: 1px solid var(--open-seas);
+  border-radius: 20px;
+  color: var(--open-seas);
+  padding: 8px 15px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.nav-toggle-jesse:hover {
+  background-color: var(--open-seas);
+  color: var(--deep-space);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(88, 187, 182, 0.4);
+}
+
+
+/* Hero Section styles */
+.hero-section {
+  position: relative;
+  height: 100vh; /* This will be the height of your hero section */
+  display: flex;
+  flex-direction: column; /* Changed to column to stack content and tree */
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: white;
+  z-index: 1;
+  padding: 0 20px;
+  box-sizing: border-box;
+  overflow: hidden; /* Hide anything overflowing, especially during animations */
+}
+
+.hero-content {
+  max-width: 800px;
+  position: relative; /* To layer content above the tree image */
+  z-index: 2; /* Ensure text is above the tree image */
+  padding-bottom: 50px; /* Space for the button if needed */
+}
+
+.hero-title {
+  font-size: 4.5rem;
+  font-weight: 800;
+  margin-bottom: 20px;
+  line-height: 1.1;
+  background: linear-gradient(45deg, var(--guiding-light), var(--open-seas));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+  font-size: 1.8rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 40px;
+}
+
+.cta-button {
+  padding: 18px 40px;
+  background: linear-gradient(45deg, var(--setting-sun), var(--neural-purple));
+  border: none;
+  border-radius: 50px;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(255, 93, 0, 0.4);
+}
+
+.cta-button:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 15px 40px rgba(255, 93, 0, 0.6);
+}
+
+/* New: Animated Tree Container */
+.animated-tree-container {
+  position: absolute; /* Position relative to .hero-section */
+  bottom: 0; /* Align to the bottom of the hero section */
+  left: 50%;
+  transform: translateX(-50%); /* Center horizontally */
+  width: 100%; /* Take full width of its container */
+  max-width: 1000px; /* Adjust max width as needed for the tree image */
+  height: auto;
+  z-index: 1; /* Below hero-content, above background */
+  display: flex;
+  justify-content: center;
+  align-items: flex-end; /* Align tree image to the bottom */
+}
+
+.base-tree-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  /* Further animations will be applied to this image or layers on top of it */
+}
+
+
+/* General Section Styling (for AboutFounder, AgentProfile, etc.) */
+.section-container {
+  padding: 100px 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  background-color: var(--deep-space);
+}
+
+.section-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 50px;
+  color: var(--open-seas);
+}
+
+.section-content {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  align-items: center;
+}
+
+/* Placeholder for images if not found */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--deep-space);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, var(--setting-sun), var(--neural-purple));
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #FF7B3D, #8A56E2);
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 3rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.2rem;
+  }
+
+  .navbar {
+    justify-content: center;
+    gap: 20px;
+    padding: 15px 20px;
+  }
+
+  .navbar a {
+    font-size: 1rem;
+  }
+
+  .section-title {
+    font-size: 2.2rem;
+  }
+
+  .section-content {
+    flex-direction: column;
+  }
+
+  .chat-bubble {
+    max-width: 90%;
+    right: 5%;
+    left: 5%;
+    transform: translateX(0) scale(0.8);
+  }
+
+  .chat-bubble.active {
+    transform: translateX(0) scale(1);
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+
+  .cta-button {
+    padding: 12px 25px;
+    font-size: 1rem;
+  }
+
+  #jesse-assistant {
+    width: 70px;
+    height: 70px;
+    bottom: 20px;
+    right: 20px;
+  }
+
+  .chat-bubble {
+    bottom: 100px;
+  }
+}
