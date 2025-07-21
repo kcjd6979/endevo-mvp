@@ -3,7 +3,8 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 // Removed Three.js and GLTFLoader imports
-import { gsap } from 'gsap';
+import Image from 'next/image';
+import JesseAssistant from '../components/JesseAssistant';
 
 export default function Home() {
   const [jesseChatActive, setJesseChatActive] = useState(false);
@@ -120,11 +121,13 @@ export default function Home() {
         </div>
         {/* 2D Tree with Animated Roots */}
         <div className="tree-background">
-          <img 
+          <Image
             src="/images/tree with orange circuits for website.png" 
             alt="Tree with Circuit Board Roots" 
             className="tree-image" 
-            onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/1200x800/08123A/FF5D00?text=Tree+Image+Missing'; }}
+            width={1200}
+            height={800}
+            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = 'https://placehold.co/1200x800/08123A/FF5D00?text=Tree+Image+Missing'; }}
           />
           <div className="roots-overlay"></div> {/* For pulsating roots effect */}
         </div>
@@ -150,25 +153,13 @@ export default function Home() {
       </section>
       */}
 
-      {/* Jesse AI Assistant Floating Icon */}
-      <div id="jesse-assistant" onClick={toggleJesseChat}>
-        <img src="/images/Jesse L. Bones (2).png" alt="Jesse L. Bones AI Assistant" className="jesse-icon" 
-             onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/90x90/58BBB6/FFFFFF?text=Jesse'; }}/>
-      </div>
-
-      {/* Jesse Chat Bubble */}
-      <div className={`chat-bubble ${jesseChatActive ? 'active' : ''}`} id="jesse-chat-bubble">
-        <div className="chat-history" ref={miniChatHistoryRef}>
-          {/* Messages will be rendered here by useEffect */}
-        </div>
-        <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
-          <input type="text" placeholder="Type your message..." className="chat-message-input" id="jesse-mini-chat-input"
-                 onKeyPress={(e) => { if (e.key === 'Enter') sendMessage(e.target, miniChatHistoryRef); }}/>
-          <button className="chat-send-button" onClick={() => sendMessage(document.getElementById('jesse-mini-chat-input'), miniChatHistoryRef)}>
-            📤
-          </button>
-        </div>
-      </div>
+      <JesseAssistant
+        showJesse={jesseChatActive}
+        toggleJesseVisibility={toggleJesseChat}
+        chatHistory={chatHistory}
+        sendMessage={sendMessage}
+        miniChatHistoryRef={miniChatHistoryRef}
+      />
     </>
   );
 }
@@ -179,75 +170,83 @@ function AgentProfile() {
     <section id="agent" className="profile-section">
       <h2>Meet Jesse L. Bones</h2>
       <div className="agent-profile-content">
-        <img
+        <Image
           src="/images/Jesse L. Bones (2).png" // UPDATED TO .png
           alt="Jesse L. Bones"
-          style={{ width: 200, height: 200, borderRadius: '50%', objectFit: 'cover', marginBottom: '1rem' }}
-          onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/200x200/58BBB6/FFFFFF?text=Jesse'; }}
+          width={200}
+          height={200}
+          style={{ borderRadius: '50%', objectFit: 'cover', marginBottom: '1rem' }}
+          onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = 'https://placehold.co/200x200/58BBB6/FFFFFF?text=Jesse'; }}
         />
-        <p>Jesse is Niki’s lead agent and your guide throughout the journey.</p>
+        <p>Jesse is Niki&apos;s lead agent and your guide throughout the journey.</p>
         <p>Trained on thousands of legacy planning scenarios, Jesse provides personalized, empathetic guidance throughout your journey.</p>
       </div>
     </section>
   );
 }
 
-// AboutFounder Component for Niki Weiss (unchanged)
+
+
 function AboutFounder() {
   return (
     <section id="about-founder" className="profile-section">
       <h2>About Niki Weiss</h2>
       <div className="founder-gallery">
-        <img
+        <Image
           src="/images/Niki Weiss Founder.jpg"
           alt="Niki Weiss headshot 1"
-          style={{ width: 200, height: 200, borderRadius: '10px', objectFit: 'cover' }}
-          onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/200x200/08123A/FF5D00?text=Niki+Weiss+1'; }}
+          width={200}
+          height={200}
+          style={{ borderRadius: '10px', objectFit: 'cover' }}
+          onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = 'https://placehold.co/200x200/08123A/FF5D00?text=Niki+Weiss+1'; }}
         />
-        <img
+        <Image
           src="/images/Niki Weiss, Digital Thanatologist.jpg"
           alt="Niki Weiss headshot 2"
-          style={{ width: 200, height: 200, borderRadius: '10px', objectFit: 'cover' }}
-          onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/200x200/08123A/FF5D00?text=Niki+Weiss+2'; }}
+          width={200}
+          height={200}
+          style={{ borderRadius: '10px', objectFit: 'cover' }}
+          onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = 'https://placehold.co/200x200/08123A/FF5D00?text=Niki+Weiss+2'; }}
         />
-        <img
+        <Image
           src="/images/Niki Weiss.jpg"
           alt="Niki Weiss headshot 3"
-          style={{ width: 200, height: 200, borderRadius: '10px', objectFit: 'cover' }}
-          onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/200x200/08123A/FF5D00?text=Niki+Weiss+3'; }}
+          width={200}
+          height={200}
+          style={{ borderRadius: '10px', objectFit: 'cover' }}
+          onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = 'https://placehold.co/200x200/08123A/FF5D00?text=Niki+Weiss+3'; }}
         />
       </div>
       <p>
         Niki Weiss is the founder and digital thanatologist at ENDevo, helping people plan their
         legacy with compassion and cutting-edge technology.
       </p>
-      <p>After witnessing countless families struggle with unprepared loss, Niki realized that our society's avoidance of death planning creates unnecessary suffering. Her mission: make legacy planning as natural as retirement planning.</p>
+      <p>After witnessing countless families struggle with unprepared loss, Niki realized that our society&apos;s avoidance of death planning creates unnecessary suffering. Her mission: make legacy planning as natural as retirement planning.</p>
     </section>
   );
 }
 
-// Podcast Section Component (unchanged)
 function PodcastSection() {
   return (
     <section id="podcasts" className="profile-section"> {/* Reusing profile-section styles */}
-      <h2>Niki's Podcasts</h2>
-      <p>Tune into Niki's insights on legacy, life, and the future of planning.</p>
+      <h2>Niki&apos;s Podcasts</h2>
+      <p>Tune into Niki&apos;s insights on legacy, life, and the future of planning.</p>
       <div className="podcast-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', maxWidth: '900px', margin: '2rem auto' }}>
         {/* Placeholder for individual podcast episodes */}
         <div className="podcast-card" style={{ background: 'rgba(255, 255, 255, 0.1)', borderRadius: '15px', padding: '1.5rem', textAlign: 'left', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.2)' }}>
-          <img src="https://placehold.co/150x150/FF5D00/FFFFFF?text=Podcast+1" alt="Podcast Cover" style={{ width: '100%', height: 'auto', borderRadius: '10px', marginBottom: '1rem' }} />
+          <Image src="https://placehold.co/150x150/FF5D00/FFFFFF?text=Podcast+1" alt="Podcast Cover" width={150} height={150} style={{ width: '100%', height: 'auto', borderRadius: '10px', marginBottom: '1rem' }} />
           <h3 style={{ color: 'var(--guiding-light)', fontSize: '1.2rem', marginBottom: '0.5rem' }}>Episode Title 1</h3>
           <p style={{ color: 'var(--compassionate-grey)', fontSize: '0.9rem', marginBottom: '1rem' }}>A deep dive into digital immortality.</p>
           <a href="#" style={{ color: 'var(--setting-sun)', textDecoration: 'none', fontWeight: 'bold' }}>Listen Now &rarr;</a>
         </div>
         <div className="podcast-card" style={{ background: 'rgba(255, 255, 255, 0.1)', borderRadius: '15px', padding: '1.5rem', textAlign: 'left', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.2)' }}>
-          <img src="https://placehold.co/150x150/58BBB6/FFFFFF?text=Podcast+2" alt="Podcast Cover" style={{ width: '100%', height: 'auto', borderRadius: '10px', marginBottom: '1rem' }} />
+          <Image src="https://placehold.co/150x150/58BBB6/FFFFFF?text=Podcast+2" alt="Podcast Cover" width={150} height={150} style={{ width: '100%', height: 'auto', borderRadius: '10px', marginBottom: '1rem' }} />
           <h3 style={{ color: 'var(--guiding-light)', fontSize: '1.2rem', marginBottom: '0.5rem' }}>Episode Title 2</h3>
           <p style={{ color: 'var(--compassionate-grey)', fontSize: '0.9rem', marginBottom: '1rem' }}>Navigating grief in the digital age.</p>
           <a href="#" style={{ color: 'var(--setting-sun)', textDecoration: 'none', fontWeight: 'bold' }}>Listen Now &rarr;</a>
         </div>
         <div className="podcast-card" style={{ background: 'rgba(255, 255, 255, 0.1)', borderRadius: '15px', padding: '1.5rem', textAlign: 'left', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.2)' }}>
-          <img src="https://placehold.co/150x150/6B46C1/FFFFFF?text=Podcast+3" alt="Podcast Cover" style={{ width: '100%', height: 'auto', borderRadius: '10px', marginBottom: '1rem' }} />
+          <Image src="https://placehold.co/150x150/6B46C1/FFFFFF?text=Podcast+3" alt="Podcast Cover" width={150} height={150} style={{ width: '100%', height: 'auto', borderRadius: '10px', marginBottom: '1rem' }} />
           <h3 style={{ color: 'var(--guiding-light)', fontSize: '1.2rem', marginBottom: '0.5rem' }}>Episode Title 3</h3>
           <p style={{ color: 'var(--compassionate-grey)', fontSize: '0.9rem', marginBottom: '1rem' }}>The intersection of AI and emotional legacy.</p>
           <a href="#" style={{ color: 'var(--setting-sun)', textDecoration: 'none', fontWeight: 'bold' }}>Listen Now &rarr;</a>
@@ -264,8 +263,8 @@ function PodcastSection() {
 function BlogSection() {
   return (
     <section id="blogs" className="profile-section"> {/* Reusing profile-section styles */}
-      <h2>Niki's Blogs</h2>
-      <p>Read Niki's latest articles on legacy planning, technology, and personal growth.</p>
+      <h2>Niki&apos;s Blogs</h2>
+      <p>Read Niki&apos;s latest articles on legacy planning, technology, and personal growth.</p>
       <div className="blog-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', maxWidth: '900px', margin: '2rem auto' }}>
         {/* Placeholder for individual blog posts */}
         <div className="blog-card" style={{ background: 'rgba(255, 255, 255, 0.1)', borderRadius: '15px', padding: '1.5rem', textAlign: 'left', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.2)' }}>
