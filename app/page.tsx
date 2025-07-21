@@ -38,7 +38,7 @@ const JesseAssistant = ({ showJesse, toggleJesseVisibility }: JesseAssistantProp
     Gamified Micro-Quiz (POMA): Interactive assessment providing immediate feedback.
     Progress Dashboard: Real-time visualization of user milestones across planning modules.
     CRM & Automation Integration: Seamless connections with GoHighLevel and Zapier for automated workflows and personalized communications.
-    Project Management Integration: Structured management of user activities, timelines, and milestone tracking within the end-of-life planning journey.
+    Project Management Integration: Structured management of user activities, timelines, and milestone tracking within the-end-of-life planning journey.
     📚 Knowledge Base
     Legal: Essential information on wills, powers of attorney, and advance directives.
     Financial: Basic principles of financial planning and account management.
@@ -74,7 +74,7 @@ const JesseAssistant = ({ showJesse, toggleJesseVisibility }: JesseAssistantProp
       setInputValue('');
 
       // Prepare chat history including the persona
-      let chatHistory = [];
+      const chatHistory = []; // Changed from 'let' to 'const'
       // Add the persona as a system instruction or initial user message for context
       chatHistory.push({ role: "user", parts: [{ text: `You are Jesse L. Bones, the AI Agent described below. Adhere strictly to your persona, capabilities, knowledge base, interaction style, and limitations. Respond as Jesse would.
 
@@ -163,9 +163,7 @@ const JesseAssistant = ({ showJesse, toggleJesseVisibility }: JesseAssistantProp
               onKeyPress={(e) => {
                 // FIX: Explicitly define the type of 'e' as React.KeyboardEvent<HTMLInputElement>
                 if (e.key === 'Enter') {
-                  // The error was here, stating 'inputElement' implicitly has 'any' type.
-                  // By casting e.target to HTMLInputElement, we provide the necessary type info.
-                  const inputElement = e.target as HTMLInputElement; 
+                  // Removed 'inputElement' as it was unused and causing a warning.
                   handleSendMessage();
                 }
               }}
