@@ -1,0 +1,573 @@
+// pages/index.tsx
+'use client'; // This directive marks the component as a Client Component
+
+import React, { useEffect, useRef, useState } from 'react';
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { gsap } from 'gsap';
+
+// Import supporting components from the new 'components' directory
+import AboutFounder from '../components/AboutFounder'; // NEW: Import AboutFounder
+import AgentProfile from '../components/AgentProfile';
+import PodcastSection from '../components/PodcastSection';
+import BlogSection from '../components/BlogSection';
+
+export default function Home() {
+  const [jesseChatActive, setJesseChatActive] = useState(false);
+  // Initialize chat history with Jesse's first message
+  const [chatHistory, setChatHistory] = useState([{ role: "model", parts: [{ text: "Hello! I'm Jesse, your AI legacy advisor. How can I help you on your journey today?" }] }]);
+  const miniChatHistoryRef = useRef(null); // Ref for the mini chat history
+
+  // Function to toggle Jesse's chat bubble visibility
+  const toggleJesseChat = () => {
+    setJesseChatActive(prev => !prev);
+  };
+
+  // Function to send messages to Jesse AI
+  const sendMessage = async (inputElement, historyRef) => {
+    const message = inputElement.value.trim();
+    if (!message) return;
+
+    inputElement.value = ''; // Clear input field
+
+    // Add user message to history
+    const newUserMessage = { role: "user", parts: [{ text: message }] };
+    setChatHistory(prev => [...prev, newUserMessage]);
+
+    // Add a loading indicator for Jesse's response
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'chat-message jesse';
+    loadingDiv.innerHTML = '<div class="chat-message-content">Jesse is typing<span class="chat-loading-indicator">...</span></div>';
+    historyRef.current.appendChild(loadingDiv);
+    historyRef.current.scrollTop = historyRef.current.scrollHeight; // Scroll to bottom
+
+    try {
+      const apiKey = ""; // Canvas will provide this at runtime
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+      
+      const payload = { contents: [...chatHistory, newUserMessage] }; // Include new user message in payload
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json();
+      
+      // Remove loading indicator
+      if (historyRef.current && loadingDiv.parentNode === historyRef.current) {
+        historyRef.current.removeChild(loadingDiv);
+      }
+
+      let jesseResponseText = "I'm sorry, I couldn't generate a response at this time.";
+      if (result.candidates && result.candidates.length > 0 &&
+          result.candidates[0].content && result.candidates[0].content.parts &&
+          result.candidates[0].content.parts.length > 0) {
+        jesseResponseText = result.candidates[0].content.parts[0].text;
+      } else {
+        console.error("Gemini API response structure unexpected:", result);
+      }
+      
+      const newJesseMessage = { role: "model", parts: [{ text: jesseResponseText }] };
+      setChatHistory(prev => [...prev, newJesseMessage]); // Update state with Jesse's response
+
+    } catch (error) {
+      // Remove loading indicator
+      if (historyRef.current && loadingDiv.parentNode === historyRef.current) {
+        historyRef.current.removeChild(loadingDiv);
+      }
+      const errorMessage = { role: "model", parts: [{ text: "I'm experiencing a technical difficulty. Please try again later." }] };
+      setChatHistory(prev => [...prev, errorMessage]);
+      console.error("Error calling Gemini API:", error);
+    }
+  };
+
+  // Effect to render chat history whenever it changes
+  useEffect(() => {
+    const renderChat = (historyContainer, historyData) => {
+      if (!historyContainer) return;
+      historyContainer.innerHTML = ''; // Clear current display
+      historyData.forEach(msg => {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${msg.role === 'user' ? 'user' : 'jesse'}`;
+        messageDiv.innerHTML = `<div class="chat-message-content">${msg.parts[0].text}</div>`;
+        historyContainer.appendChild(messageDiv);
+      });
+      historyContainer.scrollTop = historyContainer.scrollHeight; // Scroll to bottom
+    };
+
+    // Render for mini chat history
+    renderChat(miniChatHistoryRef.current, chatHistory);
+  }, [chatHistory]);
+
+
+  useEffect(() => {
+    // --- Three.js Setup (existing code) ---
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    if (mountRef.current) {
+      mountRef.current.appendChild(renderer.domElement);
+    }
+
+    scene.background = new THREE.Color(0x08123A);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    dirLight.position.set(5, 10, 7.5);
+    scene.add(dirLight);
+
+    let treeModel;
+    new GLTFLoader().load(
+      '/models/tree.glb',
+      (gltf) => {
+        treeModel = gltf.scene;
+        treeModel.scale.set(3, 3, 3);
+        treeModel.position.y = -3;
+        scene.add(treeModel);
+        createRoots(treeModel);
+        startLeafLoop(treeModel);
+      },
+      undefined,
+      (err) => {
+        console.warn('Tree model missing or failed to load, using fallback tree:', err);
+        const fallback = createFallbackTree();
+        scene.add(fallback);
+        createRoots(fallback);
+        startLeafLoop(fallback);
+      }
+    );
+
+    function createFallbackTree() {
+      console.log("Creating fallback tree...");
+      const trunkGeo = new THREE.CylinderGeometry(1.5, 2, 8, 16);
+      const trunkMat = new THREE.MeshStandardMaterial({ color: 0x5c3a21 });
+      const trunk = new THREE.Mesh(trunkGeo, trunkMat);
+      trunk.position.y = -3;
+
+      const canopyGeo = new THREE.SphereGeometry(3, 32, 32);
+      const canopyMat = new THREE.MeshStandardMaterial({ color: 0x356d26 });
+      const canopy = new THREE.Mesh(canopyGeo, canopyMat);
+      canopy.position.y = 2;
+
+      const group = new THREE.Group();
+      group.add(trunk, canopy);
+      group.scale.set(1.5, 1.5, 1.5);
+      return group;
+    }
+
+    const circuitRoots = [];
+    function createRoots(tree) {
+      const rootMaterial = new THREE.LineBasicMaterial({ 
+        color: 0xFF5D00,
+        transparent: true, 
+        opacity: 0.8,
+        linewidth: 2
+      });
+
+      for (let i = 0; i < 50; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const radiusStart = 0.5;
+        const radiusEnd = 8 + Math.random() * 5;
+
+        const points = [
+          new THREE.Vector3(Math.cos(angle) * radiusStart, tree.position.y + 0.5, Math.sin(angle) * radiusStart),
+          new THREE.Vector3(Math.cos(angle) * (radiusStart + radiusEnd * 0.3), tree.position.y - 2 - Math.random() * 2, Math.sin(angle) * (radiusStart + radiusEnd * 0.3)),
+          new THREE.Vector3(Math.cos(angle) * (radiusStart + radiusEnd * 0.7), tree.position.y - 5 - Math.random() * 3, Math.sin(angle) * (radiusStart + radiusEnd * 0.7)),
+          new THREE.Vector3(Math.cos(angle) * radiusEnd, tree.position.y - 10 - Math.random() * 5, Math.sin(angle) * radiusEnd)
+        ];
+        const curve = new THREE.CatmullRomCurve3(points);
+        const geometry = new THREE.BufferGeometry().setFromPoints(curve.getPoints(32));
+
+        const line = new THREE.Line(geometry, rootMaterial.clone());
+        scene.add(line);
+        circuitRoots.push(line);
+
+        gsap.to(line.material, { 
+          opacity: 1,
+          duration: 1.5 + Math.random() * 1,
+          yoyo: true,
+          repeat: -1,
+          ease: 'sine.inOut',
+          delay: Math.random() * 1.5
+        });
+      }
+    }
+
+    const activeLeaves = [];
+    const maxLeaves = 200;
+    const leafLifetime = 10000;
+
+    function startLeafLoop(tree) {
+      const leafTexture = new THREE.TextureLoader().load('/textures/leaf.png');
+      const leafGeometry = new THREE.PlaneGeometry(0.5, 0.5);
+      
+      const generateLeaf = () => {
+        if (activeLeaves.length >= maxLeaves) {
+          const oldestLeaf = activeLeaves.shift();
+          if (oldestLeaf) {
+            gsap.to(oldestLeaf.position, {
+              y: oldestLeaf.position.y - 10,
+              duration: 4 + Math.random() * 2,
+              ease: 'power1.in',
+              onComplete: () => {
+                scene.remove(oldestLeaf);
+                oldestLeaf.geometry.dispose();
+                oldestLeaf.material.dispose();
+              }
+            });
+            gsap.to(oldestLeaf.material, {
+              opacity: 0,
+              duration: 3,
+              delay: 1
+            });
+            gsap.to(oldestLeaf.scale, {
+              x: 0.01, y: 0.01,
+              duration: 3,
+              ease: 'power1.in'
+            });
+          }
+        }
+
+        const leafMaterial = new THREE.MeshBasicMaterial({ 
+          map: leafTexture, 
+          transparent: true, 
+          opacity: 0.8,
+          side: THREE.DoubleSide
+        });
+        const leaf = new THREE.Mesh(leafGeometry, leafMaterial);
+
+        const treeTopY = tree.position.y + (tree.scale.y * (tree.geometry ? tree.geometry.parameters.height / 2 : 2));
+        leaf.position.set(
+          tree.position.x + (Math.random() - 0.5) * (tree.scale.x * 3),
+          treeTopY + (Math.random() * 2),
+          tree.position.z + (Math.random() - 0.5) * (tree.scale.z * 3)
+        );
+        leaf.rotation.z = Math.random() * Math.PI;
+        leaf.scale.set(0.01, 0.01, 0.01);
+        scene.add(leaf);
+        activeLeaves.push(leaf);
+
+        gsap.to(leaf.scale, {
+          x: 1, y: 1, z: 1,
+          duration: 1.5,
+          ease: 'elastic.out(1, 0.5)'
+        });
+
+        setTimeout(() => {
+          if (activeLeaves.includes(leaf)) {
+            const index = activeLeaves.indexOf(leaf);
+            if (index > -1) {
+              activeLeaves.splice(index, 1);
+            }
+            gsap.to(leaf.position, {
+              y: leaf.position.y - 15,
+              duration: 6 + Math.random() * 3,
+              ease: 'power1.in',
+              onComplete: () => {
+                scene.remove(leaf);
+                leaf.geometry.dispose();
+                leaf.material.dispose();
+              }
+            });
+            gsap.to(leaf.material, {
+              opacity: 0,
+              duration: 4,
+              delay: 1
+            });
+          }
+        }, leafLifetime + Math.random() * 3000);
+      };
+
+      setInterval(generateLeaf, 300);
+    }
+
+    camera.position.set(0, 2, 10);
+    camera.lookAt(0, 0, 0);
+
+    const clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      scene.rotation.y += clock.getDelta() * 0.05; 
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    const handleResize = () => {
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (mountRef.current && renderer.domElement) {
+        mountRef.current.removeChild(renderer.domElement);
+      }
+      renderer.dispose();
+      scene.traverse((object) => {
+        if (object.isMesh) {
+          object.geometry.dispose();
+          if (object.material.isMaterial) {
+            object.material.dispose();
+          } else if (Array.isArray(object.material)) {
+            object.material.forEach((material) => material.dispose());
+          }
+        }
+      });
+    };
+  }, []); // Empty dependency array means this effect runs once on mount
+
+  const mountRef = useRef(null); // Ref for the canvas container
+
+  return (
+    <>
+      {/* Navbar */}
+      <nav className="navbar">
+        <a href="#about">About</a>
+        <a href="#services">Services</a>
+        <a href="#contact">Contact</a>
+        <a href="#podcasts">Podcasts</a> {/* Added Podcast link */}
+        <a href="#blogs">Blogs</a>       {/* Added Blog link */}
+      </nav>
+
+      {/* Hero Section */}
+      <section className="hero-section">
+        <div className="hero-content">
+          <h1 className="hero-title">Live Fully. Die Ready.</h1>
+          <p className="hero-subtitle">
+            Transform life’s most important conversation into your greatest legacy
+          </p>
+          <button className="cta-button">Begin Your Legacy Journey</button>
+        </div>
+      </section>
+
+      {/* 3D Tree Scene */}
+      <div ref={mountRef} className="tree-canvas" />
+
+      {/* About the Founder Section (Niki Weiss) */}
+      <AboutFounder />
+
+      {/* Agent Profile Section (Jesse L. Bones) */}
+      <AgentProfile />
+
+      {/* Niki's Podcasts Section */}
+      <PodcastSection />
+
+      {/* Niki's Blogs Section */}
+      <BlogSection />
+
+      {/* You can add other sections like Services, Pricing, Contact here as needed */}
+      {/* For example:
+      <section id="services" className="content-section">
+        <h2>Our Services</h2>
+        <p>Details about services...</p>
+      </section>
+      */}
+
+      {/* Jesse AI Assistant Floating Icon */}
+      <div id="jesse-assistant" onClick={toggleJesseChat}>
+        <img src="/images/Jesse L. Bones (2).png" alt="Jesse L. Bones AI Assistant" className="jesse-icon" 
+             onError={(e) => { e.target.onerror = null; e.target.src = 'https://placehold.co/90x90/58BBB6/FFFFFF?text=Jesse'; }}/>
+      </div>
+
+      {/* Jesse Chat Bubble */}
+      <div className={`chat-bubble ${jesseChatActive ? 'active' : ''}`} id="jesse-chat-bubble">
+        <div className="chat-history" ref={miniChatHistoryRef}>
+          {/* Messages will be rendered here by useEffect */}
+        </div>
+        <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+          <input type="text" placeholder="Type your message..." className="chat-message-input" id="jesse-mini-chat-input"
+                 onKeyPress={(e) => { if (e.key === 'Enter') sendMessage(e.target, miniChatHistoryRef); }}/>
+          <button className="chat-send-button" onClick={() => sendMessage(document.getElementById('jesse-mini-chat-input'), miniChatHistoryRef)}>
+            📤
+          </button>
+        </div>
+      </div>
+
+      {/* Custom Styles for Floating Chat and Chat Messages */}
+      <style jsx>{`
+        #jesse-assistant {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6B46C1, #0EA5E9, #58BBB6); /* Neural Purple, Quantum Blue, Open Seas */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 
+                0 15px 40px rgba(107, 70, 193, 0.4),
+                0 5px 15px rgba(14, 165, 233, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            animation: jesseBreathing 3s ease-in-out infinite;
+            overflow: hidden;
+        }
+
+        @keyframes jesseBreathing {
+            0%, 100% { 
+                transform: scale(1) rotate(0deg);
+                box-shadow: 0 15px 40px rgba(107, 70, 193, 0.4);
+            }
+            50% { 
+                transform: scale(1.05) rotate(2deg);
+                box-shadow: 0 20px 50px rgba(107, 70, 193, 0.6);
+            }
+        }
+
+        #jesse-assistant:hover {
+            transform: scale(1.15) translateY(-5px);
+            box-shadow: 
+                0 25px 60px rgba(107, 70, 193, 0.6),
+                0 10px 25px rgba(14, 165, 233, 0.4);
+        }
+
+        #jesse-assistant::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s ease;
+        }
+
+        #jesse-assistant:hover::before {
+            animation: shimmer 0.8s ease-in-out;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+
+        .jesse-icon {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            z-index: 2;
+            position: relative;
+        }
+
+        .chat-bubble {
+            position: fixed;
+            bottom: 140px;
+            right: 30px;
+            max-width: 350px;
+            padding: 20px 25px;
+            border-radius: 25px 25px 8px 25px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transform: translateX(400px) scale(0.8);
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 999;
+            opacity: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-bubble.active {
+            transform: translateX(0) scale(1);
+            opacity: 1;
+        }
+
+        .chat-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            right: 30px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 8px solid rgba(255, 255, 255, 0.15);
+        }
+        .chat-message-input {
+            flex: 1; 
+            padding: 15px; 
+            border: 2px solid var(--open-seas); 
+            border-radius: 25px; 
+            background: rgba(255, 255, 255, 0.1); 
+            color: white; 
+            backdrop-filter: blur(10px);
+            font-family: 'Montserrat', sans-serif;
+        }
+        .chat-send-button {
+            padding: 15px 25px; 
+            border-radius: 25px;
+            background: linear-gradient(135deg, var(--setting-sun), #6B46C1); /* Setting Sun to Neural Purple */
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .chat-send-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 93, 0, 0.3);
+        }
+
+        .chat-history {
+            flex-grow: 1;
+            overflow-y: auto;
+            max-height: 200px;
+            margin-bottom: 15px;
+            padding-right: 10px;
+        }
+        .chat-message {
+            margin-bottom: 10px;
+            display: flex;
+        }
+        .chat-message.user {
+            justify-content: flex-end;
+        }
+        .chat-message.jesse {
+            justify-content: flex-start;
+        }
+        .chat-message-content {
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 80%;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .chat-message.user .chat-message-content {
+            background: var(--setting-sun);
+            border-bottom-right-radius: 5px;
+        }
+        .chat-message.jesse .chat-message-content {
+            background: linear-gradient(135deg, var(--open-seas), var(--guiding-light));
+            color: var(--deep-space);
+            border-bottom-left-radius: 5px;
+        }
+        .chat-loading-indicator {
+            display: inline-block;
+            margin-left: 10px;
+            color: var(--guiding-light);
+            font-weight: bold;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+      `}</style>
+    </>
+  );
+}

@@ -1,0 +1,409 @@
+/* styles/globals.css */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&display=swap');
+
+:root {
+  --deep-space:   #08123A;
+  --setting-sun:  #FF5D00;
+  --compassionate-grey: #D5D1C7;
+  --guiding-light: #C9FB3F; /* Added for leaf color */
+  --open-seas: #58BBB6; /* Ensure this is defined for consistency */
+  --neural-purple: #6B46C1; /* Added for Jesse AI */
+  --quantum-blue: #0EA5E9; /* Added for Jesse AI */
+}
+
+* { box-sizing: border-box; margin:0; padding:0; }
+html, body {
+  width:100%; height:100%;
+  background: var(--deep-space);
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  color: white;
+  font-family: 'Montserrat', sans-serif;
+  scroll-behavior: smooth; /* Smooth scrolling for nav links */
+}
+
+.navbar { 
+  position:fixed; /* Changed to fixed for consistency */
+  top:0; 
+  width:100%; 
+  display:flex; 
+  justify-content:flex-end; 
+  padding:1rem 2rem; 
+  z-index:10; /* Higher z-index to be above content */
+  background: linear-gradient(180deg, rgba(8,18,58,0.9), rgba(8,18,58,0)); /* Subtle gradient fade */
+  backdrop-filter: blur(5px); /* Added blur for modern feel */
+  -webkit-backdrop-filter: blur(5px);
+}
+.navbar a { 
+  margin-left:2rem; 
+  text-decoration:none; 
+  color:white; 
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+.navbar a:hover {
+  color: var(--setting-sun);
+}
+
+.hero-section { 
+  position:relative; /* Changed to relative as it's the first content section */
+  width:100%;
+  height:100vh; /* Full viewport height */
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:1;
+  pointer-events:none; /* Allow clicks to pass through to the canvas */
+  padding-top: 60px; /* Space for fixed navbar */
+}
+.hero-content { 
+  text-align:center; 
+  pointer-events:auto; /* Re-enable clicks for content within */
+  padding: 0 20px; /* Add some padding for smaller screens */
+}
+.hero-title { 
+  font-size:clamp(3rem, 8vw, 6rem); /* Responsive font size */
+  white-space:nowrap; 
+  margin-bottom:.5rem; 
+  font-weight:800; 
+  background: linear-gradient(135deg, var(--pure-white) 0%, var(--setting-sun) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-subtitle { 
+  font-size:clamp(1rem, 2.5vw, 1.5rem); /* Responsive font size */
+  color: var(--compassionate-grey); 
+  margin-bottom:1.5rem; 
+}
+.cta-button { 
+  background: linear-gradient(135deg, var(--setting-sun), #FF7D33); /* Slightly varied orange gradient */
+  border:none; 
+  border-radius:.5rem; 
+  padding:.75rem 1.5rem; 
+  font-size:1rem; 
+  color:white; 
+  cursor:pointer; 
+  font-weight: 700;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(255, 93, 0, 0.4);
+}
+.cta-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(255, 93, 0, 0.6);
+}
+
+/* Three.js canvas sits behind everything */
+.tree-canvas { 
+  position:fixed; /* Changed to fixed to cover entire background */
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  z-index:0; 
+  opacity: 0.8; /* Slightly reduce opacity to blend with background */
+}
+
+/* Styling for profile sections (reused for podcasts/blogs) */
+.profile-section {
+  padding: 4rem 2rem;
+  text-align: center;
+  background: var(--deep-space); /* Consistent background */
+  color: white;
+  min-height: 100vh; /* Ensure sections take full height */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.profile-section h2 {
+  font-size: clamp(2rem, 5vw, 3rem);
+  margin-bottom: 2rem;
+  background: linear-gradient(135deg, var(--guiding-light), var(--open-seas));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+}
+
+.profile-section p {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  max-width: 700px;
+  margin: 0 auto 1.5rem auto;
+  color: var(--compassionate-grey);
+}
+
+.founder-gallery {
+  display: flex;
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  gap: 1.5rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.agent-profile-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* Specific styling for podcast and blog cards */
+.podcast-grid, .blog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    max-width: 900px;
+    margin: 2rem auto;
+}
+
+.podcast-card, .blog-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 1.5rem;
+    text-align: left;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.podcast-card:hover, .blog-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.podcast-card img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+}
+
+.podcast-card h3, .blog-card h3 {
+    color: var(--guiding-light);
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+}
+
+.podcast-card p, .blog-card p {
+    color: var(--compassionate-grey);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}
+
+.podcast-card a, .blog-card a {
+    color: var(--setting-sun);
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.podcast-card a:hover {
+    color: var(--guiding-light);
+}
+
+/* Jesse AI Assistant Floating Icon */
+#jesse-assistant {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--neural-purple), var(--quantum-blue), var(--open-seas)); /* Neural Purple, Quantum Blue, Open Seas */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 
+        0 15px 40px rgba(107, 70, 193, 0.4),
+        0 5px 15px rgba(14, 165, 233, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    animation: jesseBreathing 3s ease-in-out infinite;
+    overflow: hidden;
+}
+
+@keyframes jesseBreathing {
+    0%, 100% { 
+        transform: scale(1) rotate(0deg);
+        box-shadow: 0 15px 40px rgba(107, 70, 193, 0.4);
+    }
+    50% { 
+        transform: scale(1.05) rotate(2deg);
+        box-shadow: 0 20px 50px rgba(107, 70, 193, 0.6);
+    }
+}
+
+#jesse-assistant:hover {
+    transform: scale(1.15) translateY(-5px);
+    box-shadow: 
+        0 25px 60px rgba(107, 70, 193, 0.6),
+        0 10px 25px rgba(14, 165, 233, 0.4);
+}
+
+#jesse-assistant::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transform: rotate(45deg);
+    transition: all 0.6s ease;
+}
+
+#jesse-assistant:hover::before {
+    animation: shimmer 0.8s ease-in-out;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+.jesse-icon {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    z-index: 2;
+    position: relative;
+}
+
+.chat-bubble {
+    position: fixed;
+    bottom: 140px;
+    right: 30px;
+    max-width: 350px;
+    padding: 20px 25px;
+    border-radius: 25px 25px 8px 25px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transform: translateX(400px) scale(0.8);
+    transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 999;
+    opacity: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-bubble.active {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+}
+
+.chat-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    right: 30px;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 8px solid rgba(255, 255, 255, 0.15); /* Matches glass background */
+}
+.chat-message-input {
+    flex: 1; 
+    padding: 15px; 
+    border: 2px solid var(--open-seas); 
+    border-radius: 25px; 
+    background: rgba(255, 255, 255, 0.1); 
+    color: white; 
+    backdrop-filter: blur(10px);
+    font-family: 'Montserrat', sans-serif;
+}
+.chat-send-button {
+    padding: 15px 25px; 
+    border-radius: 25px;
+    background: linear-gradient(135deg, var(--setting-sun), var(--neural-purple)); /* Setting Sun to Neural Purple */
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.chat-send-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 93, 0, 0.3);
+}
+
+.chat-history {
+    flex-grow: 1;
+    overflow-y: auto;
+    max-height: 200px;
+    margin-bottom: 15px;
+    padding-right: 10px;
+}
+.chat-message {
+    margin-bottom: 10px;
+    display: flex;
+}
+.chat-message.user {
+    justify-content: flex-end;
+}
+.chat-message.jesse {
+    justify-content: flex-start;
+}
+.chat-message-content {
+    padding: 10px 15px;
+    border-radius: 15px;
+    max-width: 80%;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    font-family: 'Montserrat', sans-serif;
+}
+.chat-message.user .chat-message-content {
+    background: var(--setting-sun);
+    border-bottom-right-radius: 5px;
+}
+.chat-message.jesse .chat-message-content {
+    background: linear-gradient(135deg, var(--open-seas), var(--guiding-light));
+    color: var(--deep-space);
+    border-bottom-left-radius: 5px;
+}
+.chat-loading-indicator {
+    display: inline-block;
+    margin-left: 10px;
+    color: var(--guiding-light);
+    font-weight: bold;
+    animation: pulse 1s infinite;
+}
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .navbar {
+    justify-content: center; /* Center nav items on small screens */
+    padding: 0.75rem;
+    flex-wrap: wrap; /* Allow nav items to wrap */
+  }
+  .navbar a {
+    margin: 0 0.5rem; /* Reduced margin for wrapped items */
+    font-size: 0.9rem;
+  }
+  .hero-title {
+    white-space: normal; /* Allow title to wrap on small screens if needed */
+  }
+  .profile-section {
+    padding: 2rem 1rem; /* Reduced padding on mobile */
+  }
+  .founder-gallery, .podcast-grid, .blog-grid {
+    grid-template-columns: 1fr; /* Stack cards vertically on mobile */
+  }
+}
